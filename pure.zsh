@@ -857,6 +857,25 @@ prompt_pure_setup() {
 	local prompt_indicator='%(?.%F{$prompt_pure_colors[prompt:success]}.%F{$prompt_pure_colors[prompt:error]})${prompt_pure_state[prompt]}%f '
 	PROMPT+=$prompt_indicator
 
+	# girish
+	# Make prompt stay about 30% above bottom of screen
+	# https://superuser.com/questions/1389834/can-i-have-the-terminal-prompt-at-the-vertical-middle-of-a-window
+	# load terminfo modules to make the associative array $terminfo available
+	zmodload zsh/terminfo
+	local third_of_page=$((LINES/3))  # 1/3 of screen
+	# construct parameter to go down/up $halfpage lines via termcap
+	# cud1 is cursor down one line, cuu1 is one line up.
+	local third_down=""
+	for i in {1..$third_of_page}; do
+		third_down="$third_down$terminfo[cud1]"
+	done
+	local third_up=""
+	for i in {1..$third_of_page}; do
+		third_up="$third_up$terminfo[cuu1]"
+	done
+	# for %{ %} see https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
+	PROMPT="%{${third_down}${third_up}%}$PROMPT"
+
 	# Indicate continuation prompt by … and use a darker color for it.
 	PROMPT2='%F{$prompt_pure_colors[prompt:continuation]}… %(1_.%_ .%_)%f'$prompt_indicator
 
